@@ -6,84 +6,81 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
  * @title LandRegistry
- * @dev A smart contract for secure, transparent land title registration and transfer using ERC-721.
- * Each land title is minted as a unique NFT, with metadata stored on-chain.
+ * @dev A secure, transparent digital land title registry contract using ERC-721.
+ * Each title represents a unique piece of land, minted by the Ministry of Lands (Owner).
  */
 contract LandRegistry is ERC721, Ownable {
-    
-    struct LandParcel {
-        uint256 id;                 // Token ID & Land ID
-        string titleNumber;         // Unique government issued Title/Parcel Number
-        string location;            // GPS coordinates or physical address description
-        uint256 sizeInSqMeters;     // Size of the land parcel in square meters
-        uint256 registeredAt;       // Timestamp of registration
-        bool isDisputed;            // Status flag representing whether the title is under dispute
-        string metadataURI;         // IPFS or external link to official deeds/documents
-    }
 
-    // Mapping from Land/Token ID to LandParcel details
-    mapping(uint256 => LandParcel) private _landParcels;
-    
-    // Mapping from Title Number to Token ID to ensure title uniqueness
-    mapping(string => uint256) private _titleNumberToTokenId;
+    // Private mapping to store the land description or GPS coordinates per token ID
+    mapping(uint256 => string) private _tokenLocation;
 
-    // Events
-    event LandRegistered(
-        uint256 indexed landId, 
-        address indexed owner, 
-        string titleNumber, 
-        string location, 
-        uint256 sizeInSqMeters
-    );
-    event LandTransferInitiated(uint256 indexed landId, address indexed currentOwner, address indexed proposedOwner);
-    event DisputeLogged(uint256 indexed landId, string reason);
-    event DisputeResolved(uint256 indexed landId);
+    // Security mapping to freeze transfers of titles under legal dispute
+    mapping(uint256 => bool) private _isDisputed;
 
-    constructor() ERC721("Digital Land Title Registry", "LAND") Ownable(msg.sender) {}
+    // Events for auditing and real-time frontend/USSD updates
+    event TitleMinted(address indexed owner, uint256 indexed tokenId, string location);
+    event DisputeStatusChanged(uint256 indexed tokenId, bool isDisputed);
 
     /**
-     * @dev Registers (mints) a new land parcel. Only the registry authority (contract owner) can register new land.
-     * @param to The address representing the initial legal owner of the land parcel.
-     * @param landId Unique numeric ID representing the land parcel.
-     * @param titleNumber Unique legal title code (e.g. "LR-NBO-12049").
-     * @param location Text representation of the location or boundary GPS points.
-     * @param sizeInSqMeters Size of the parcel in square meters.
-     * @param metadataURI URI pointing to external maps, land surveyor deeds or legal PDFs.
+     * @dev Initializes the contract with the token name and symbol, passing the owner to Ownable.
      */
-    function registerLand(
-        address to,
-        uint256 landId,
-        string calldata titleNumber,
-        string calldata location,
-        uint256 sizeInSqMeters,
-        string calldata metadataURI
+    constructor() ERC721("LandRegistry", "LAND") Ownable(msg.sender) {}
+
+    /**
+     * @dev Mints a new land title. Representing the Ministry issuing a land title to a citizen's wallet.
+     * @param to Wallet address of the legal citizen receiving the land title.
+     * @param tokenId Unique land parcel identification number.
+     * @param location Short description or GPS coordinates of the land parcel.
+     */
+    function mintTitle(
+        address to, 
+        uint256 tokenId, 
+        string calldata location
     ) external onlyOwner {
-        require(to != address(0), "LandRegistry: Invalid owner address");
-        require(bytes(titleNumber).length > 0, "LandRegistry: Title number cannot be empty");
-        require(_titleNumberToTokenId[titleNumber] == 0, "LandRegistry: Title number already registered");
-        require(!_exists(landId), "LandRegistry: Land ID already exists");
+        require(to != address(0), "LandRegistry: Cannot mint to zero address");
+        require(bytes(location).length > 0, "LandRegistry: Location details cannot be empty");
+        
+        // Mint the ERC-721 token securely
+        _safeMint(to, tokenId);
+        
+        // Store the land location details in the private mapping
+        _tokenLocation[tokenId] = location;
 
-        // Mint ERC-721 token
-        _safeMint(to, landId);
-
-        // Store land details
-        _landParcels[landId] = LandParcel({
-            id: landId,
-            titleNumber: titleNumber,
-            location: location,
-            sizeInSqMeters: sizeInSqMeters,
-            registeredAt: block.timestamp,
-            isDisputed: false,
-            metadataURI: metadataURI
-        });
-
-        _titleNumberToTokenId[titleNumber] = landId;
-
-        emit LandRegistered(landId, to, titleNumber, location, sizeInSqMeters);
+        emit TitleMinted(to, tokenId, location);
     }
 
     /**
-     * @dev Overrides ERC721 safe transfer to ensure disputed lands cannot be transferred.
+     * @dev Returns the location string or GPS coordinates for a specific land title.
+     * @param tokenId Unique land parcel identification number.
+     */
+    function getTitleDetails(uint256 tokenId) external view returns (string memory) {
+        // Will automatically revert if the token doesn't exist
+        address owner = ownerOf(tokenId);
+        require(owner != address(0), "LandRegistry: Invalid token owner");
+        
+        return _tokenLocation[tokenId];
+    }
+
+    /**
+     * @dev Allows the Ministry (owner) to flag a title under legal dispute to freeze transfers.
+     */
+    function setDisputeStatus(uint256 tokenId, bool disputed) external onlyOwner {
+        require(_exists(tokenId), "LandRegistry: Query for nonexistent token");
+        _isDisputed[tokenId] = disputed;
+        emit DisputeStatusChanged(tokenId, disputed);
+    }
+
+    /**
+     * @dev Checks if a specific land title is flagged as disputed.
+     */
+    function isTitleDisputed(uint256 tokenId) external view returns (bool) {
+        require(_exists(tokenId), "LandRegistry: Query for nonexistent token");
+        return _isDisputed[tokenId];
+    }
+
+    /**
+     * @dev Hook before any token transfer to enforce security rules.
+     * Overriding safeTransferFrom to ensure disputed land titles cannot be transferred or double-sold.
      */
     function safeTransferFrom(
         address from,
@@ -91,89 +88,24 @@ contract LandRegistry is ERC721, Ownable {
         uint256 tokenId,
         bytes memory data
     ) public override {
-        require(!_landParcels[tokenId].isDisputed, "LandRegistry: Cannot transfer disputed land");
+        require(!_isDisputed[tokenId], "LandRegistry: Title is under dispute and frozen");
         super.safeTransferFrom(from, to, tokenId, data);
     }
 
     /**
-     * @dev Overrides ERC721 transferFrom to ensure disputed lands cannot be transferred.
+     * @dev Overriding transferFrom to ensure disputed land titles cannot be transferred.
      */
     function transferFrom(
         address from,
         address to,
         uint256 tokenId
     ) public override {
-        require(!_landParcels[tokenId].isDisputed, "LandRegistry: Cannot transfer disputed land");
+        require(!_isDisputed[tokenId], "LandRegistry: Title is under dispute and frozen");
         super.transferFrom(from, to, tokenId);
     }
 
     /**
-     * @dev Logs a formal dispute against a land title, freezing any transfers until resolved.
-     * Only the registry authority (contract owner) can log a dispute.
-     */
-    function logDispute(uint256 landId, string calldata reason) external onlyOwner {
-        require(_exists(landId), "LandRegistry: Land does not exist");
-        require(!_landParcels[landId].isDisputed, "LandRegistry: Land is already disputed");
-
-        _landParcels[landId].isDisputed = true;
-        emit DisputeLogged(landId, reason);
-    }
-
-    /**
-     * @dev Resolves a land dispute and unfreezes transfers. Only the registry authority can resolve.
-     */
-    function resolveDispute(uint256 landId) external onlyOwner {
-        require(_exists(landId), "LandRegistry: Land does not exist");
-        require(_landParcels[landId].isDisputed, "LandRegistry: Land is not under dispute");
-
-        _landParcels[landId].isDisputed = false;
-        emit DisputeResolved(landId);
-    }
-
-    /**
-     * @dev Fetches complete on-chain information about a registered land parcel.
-     */
-    function getLandParcel(uint256 landId) external view returns (
-        uint256 id,
-        string memory titleNumber,
-        string memory location,
-        uint256 sizeInSqMeters,
-        uint256 registeredAt,
-        bool isDisputed,
-        string memory metadataURI,
-        address currentOwner
-    ) {
-        require(_exists(landId), "LandRegistry: Land ID does not exist");
-        
-        LandParcel memory parcel = _landParcels[landId];
-        return (
-            parcel.id,
-            parcel.titleNumber,
-            parcel.location,
-            parcel.sizeInSqMeters,
-            parcel.registeredAt,
-            parcel.isDisputed,
-            parcel.metadataURI,
-            ownerOf(landId)
-        );
-    }
-
-    /**
-     * @dev Checks if a land title with the given ID exists.
-     */
-    function exists(uint256 landId) external view returns (bool) {
-        return _exists(landId);
-    }
-
-    /**
-     * @dev Resolves a title number to its Token ID. Returns 0 if not found.
-     */
-    function getTokenIdByTitle(string calldata titleNumber) external view returns (uint256) {
-        return _titleNumberToTokenId[titleNumber];
-    }
-
-    /**
-     * @dev Internal helper to check token existence (for compatibility across OpenZeppelin versions).
+     * @dev Internal helper to verify token existence in a multi-version compatible way.
      */
     function _exists(uint256 tokenId) internal view returns (bool) {
         try this.ownerOf(tokenId) returns (address) {
