@@ -1,10 +1,12 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { ethers } from "https://esm.sh/ethers@6.13.1";
 
-// ABI slice containing only the getLandParcel method for on-chain queries
+// ABI slice containing only the necessary methods for on-chain queries
 const LAND_REGISTRY_ABI = [
   "function getLandParcel(uint256 landId) external view returns (uint256 id, string memory titleNumber, string memory location, uint256 sizeInSqMeters, uint256 registeredAt, bool isDisputed, string memory metadataURI, address currentOwner)",
-  "function exists(uint256 landId) external view returns (bool)"
+  "function exists(uint256 landId) external view returns (bool)",
+  "function balanceOf(address owner) external view returns (uint256)",
+  "function tokenOfOwnerByIndex(address owner, uint256 index) external view returns (uint256)"
 ];
 
 // Mock database for immediate demo verification when RPC or contract is not yet configured
@@ -90,7 +92,7 @@ serve(async (req: Request) => {
         responseMessage = `CON Enter Registered Wallet Address or National ID:`;
       } else if (level === 2) {
         const identifier = inputs[1].trim();
-        responseMessage = queryUserLands(identifier);
+        responseMessage = await queryUserLands(identifier);
       } else {
         responseMessage = `END Invalid selection.`;
       }
@@ -98,7 +100,7 @@ serve(async (req: Request) => {
     else if (inputs[0] === "3") {
       // Option 3: About System
       responseMessage = `END Digital Land Title Registry
-v1.0.0 (Ethers.js + Supabase Edge)
+v1.1.0 (Ethers.js + Supabase Edge)
 Allows instantaneous land verification using standard feature phones via USSD.
 Ensures transparent ownership and eliminates double-selling.`;
     } 
@@ -185,11 +187,55 @@ Try entering 101, 102, or 103 for demo verification.`;
 
 /**
  * Searches for lands registered to a specific owner identifier.
+ * Uses real-time on-chain lookup if the identifier is a valid Ethereum address and contract is available.
  */
-function queryUserLands(identifier: string): string {
+async function queryUserLands(identifier: string): Promise<string> {
+  const rpcUrl = Deno.env.get("RPC_PROVIDER_URL");
+  const contractAddress = Deno.env.get("CONTRACT_ADDRESS");
+
+  // Attempt real-time blockchain query if a valid address is supplied and contract config exists
+  if (ethers.isAddress(identifier) && rpcUrl && contractAddress) {
+    try {
+      const provider = new ethers.JsonRpcProvider(rpcUrl);
+      const contract = new ethers.Contract(contractAddress, LAND_REGISTRY_ABI, provider);
+
+      const balance = await contract.balanceOf(identifier);
+      const count = Number(balance);
+
+      if (count === 0) {
+        return `END No active land records registered to this wallet address:
+${identifier.slice(0, 6)}...${identifier.slice(-4)}`;
+      }
+
+      let listStr = `END Lands for ${identifier.slice(0, 6)}...${identifier.slice(-4)}:\n`;
+      const maxCount = Math.min(count, 5); // Limit outputs to fit standard USSD display limits
+      
+      for (let i = 0; i < maxCount; i++) {
+        const tokenId = await contract.tokenOfOwnerByIndex(identifier, i);
+        const parcel = await contract.getLandParcel(tokenId);
+        
+        const titleNumber = parcel[1];
+        const size = Number(parcel[3]);
+        const isDisputed = parcel[5];
+        const disputedIcon = isDisputed ? "⚠️" : "✅";
+
+        listStr += `${i + 1}. [ID: ${tokenId}] ${titleNumber} (${size} sqm) ${disputedIcon}\n`;
+      }
+
+      if (count > maxCount) {
+        listStr += `+ ${count - maxCount} more parcels.`;
+      }
+
+      return listStr;
+    } catch (err) {
+      console.warn("Blockchain query for user lands failed, falling back to mock database:", err);
+    }
+  }
+
+  // Fallback / Mock Database Search
   const normalized = identifier.toLowerCase();
   
-  // Find matching parcels from mock data
+  // Find matching parcels from mock data by owner address or title number match
   const matches = Object.entries(MOCK_LANDS).filter(([_, info]) => 
     info.owner.toLowerCase() === normalized || 
     normalized.includes(info.titleNumber.toLowerCase().split("-")[2])
