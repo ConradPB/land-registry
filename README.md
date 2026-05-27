@@ -64,6 +64,22 @@ Spin up a local EVM network node and deploy the contract with pre-configured dem
    ```
    *Note: This script automatically deploys the contract and mints three properties (Land #101, #102, #103) to the first local wallet address (`0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266`). Land #102 is flagged as disputed.*
 
+### 4. Deploy to Ethereum Sepolia Testnet
+When you are ready to transition from a local node to the public Sepolia Testnet:
+1. Create a `.env` file in the project root by copying the template:
+   ```bash
+   cp .env.example .env
+   ```
+2. Populate the `.env` variables with your active wallet details and node credentials:
+   ```env
+   PRIVATE_KEY=your_actual_wallet_private_key
+   SEPOLIA_RPC_URL=https://eth-sepolia.g.alchemy.com/v2/YOUR_ALCHEMY_API_KEY
+   ```
+3. Execute the deployment script targeting the Sepolia network:
+   ```bash
+   npx hardhat run scripts/deploy.js --network sepolia
+   ```
+
 ---
 
 ## 🚀 Supabase Deno USSD Gateway Setup
