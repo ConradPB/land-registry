@@ -95,7 +95,7 @@ contract LandRegistry is ERC721, ERC721Enumerable, Ownable {
      * @dev Returns the complete details of a land parcel.
      */
     function getLandParcel(uint256 tokenId) external view returns (
-        unt256 id,
+        uint256 id,
         string memory titleNumber,
         string memory location,
         uint256 sizeInSqMeters,
