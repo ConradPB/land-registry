@@ -67,7 +67,7 @@ contract LandRegistry is ERC721, ERC721Enumerable, Ownable {
             location: location,
             sizeInSqMeters: sizeInSqMeters,
             registeredAt: block.timestamp,
-            metadataURI: metadataURI
+            metadataURI: metadataU
         });
 
         emit TitleMinted(to, tokenId, titleNumber, location);
@@ -94,30 +94,52 @@ contract LandRegistry is ERC721, ERC721Enumerable, Ownable {
     /**
      * @dev Returns the complete details of a land parcel.
      */
-    function getLandParcel(uint256 tokenId) external view returns (
-        uint256 id,
-        string memory titleNumber,
-        string memory location,
-        uint256 sizeInSqMeters,
-        uint256 registeredAt,
-        bool isDisputed,
-        string memory metadataURI,
+   // 1. Get the basic info
+    function getLandParcelBasic(uint256 tokenId) external view returns (
+        uint256 id, 
+        string memory titleNumber, 
+        string memory location, 
+        uint256 sizeInSqMeters
+    ) {
+        require(ownerOf(tokenId) != address(0), "Nonexistent token");
+        LandParcelInfo memory info = _parcels[tokenId];
+        return (tokenId, info.titleNumber, info.location, info.sizeInSqMeters);
+    }
+
+    // 2. Get the legal/status info
+    function getLandParcelStatus(uint256 tokenId) external view returns (
+        uint256 registeredAt, 
+        bool isDisputed, 
+        string memory metadataURI, 
+        address currentOwner
+    ) {
+        addre// 1. Get the basic info
+    function getLandParcelBasic(uint256 tokenId) external view returns (
+        uint256 id, 
+        string memory titleNumber, 
+        string memory location, 
+        uint256 sizeInSqMeters
+    ) {
+        require(ownerOf(tokenId) != address(0), "Nonexistent token");
+        LandParcelInfo memory info = _parcels[tokenId];
+        return (tokenId, info.titleNumber, info.location, info.sizeInSqMeters);
+    }
+
+    // 2. Get the legal/status info
+    function getLandParcelStatus(uint256 tokenId) external view returns (
+        uint256 registeredAt, 
+        bool isDisputed, 
+        string memory metadataURI, 
         address currentOwner
     ) {
         address owner = ownerOf(tokenId);
-        require(owner != address(0), "LandRegistry: Query for nonexistent token");
-
+        require(owner != address(0), "Nonexistent token");
         LandParcelInfo memory info = _parcels[tokenId];
-        return (
-            tokenId,
-            info.titleNumber,
-            info.location,
-            info.sizeInSqMeters,
-            info.registeredAt,
-            _isDisputed[tokenId],
-            info.metadataURI,
-            owner
-        );
+        return (info.registeredAt, _isDisputed[tokenId], info.metadataURI, owner);
+    } owner = ownerOf(tokenId);
+        require(owner != address(0), "Nonexistent token");
+        LandParcelInfo memory info = _parcels[tokenId];
+        return (info.registeredAt, _isDisputed[tokenId], info.metadataURI, owner);
     }
 
     /**
