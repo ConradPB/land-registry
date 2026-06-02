@@ -17,6 +17,7 @@ typechain-types/
 coverage/
 coverage.json
 *.log
+ignition/deployments/
 
 # IDEs and System Files
 .DS_Store
@@ -27,3 +28,4 @@ coverage.json
 *.njsproj
 *.sln
 *.swp
+.env
