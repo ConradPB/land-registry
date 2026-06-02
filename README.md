@@ -1,6 +1,6 @@
 # TitleChain 🔗
 
-### Blockchain-Based Digital Land Registry for Uganda
+### Blockchain-Based Digital Land Registry
 
 > _Own it. Prove it. On-chain._
 
