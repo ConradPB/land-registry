@@ -157,3 +157,61 @@ Try token IDs `0`, `1`, or `2` — ID `1` returns a disputed/frozen parcel.
 
 Every transaction is publicly verifiable:
 https://amoy.polygonscan.com/address/0xc6A41798d3BC687c53053936cFD1975eb6206Cfb
+
+---
+
+## 🔒 Security
+
+- **Access control**: Only the government administrator wallet (`onlyOwner`) can mint titles or freeze disputes — enforced cryptographically by the smart contract
+- **Immutability**: Records on-chain cannot be altered or deleted by any party
+- **Dispute freeze**: `isDisputed = true` blocks all transfers at contract level
+- **Secrets**: All sensitive keys stored in `.env` — never committed to git
+- **Audit trail**: Every mint, transfer and dispute event permanently logged on-chain
+
+---
+
+## 🗺️ Roadmap
+
+### ✅ Phase 1 — Prototype (Complete)
+
+- ERC-721 smart contract deployed on Polygon Amoy
+- USSD handler live on Supabase Edge Functions
+- Land parcel minted and verifiable on-chain
+- Mock fallback for offline demo
+
+### 🔜 Phase 2 — Pilot (Next)
+
+- Deploy on Polygon Mainnet
+- Live Africa's Talking USSD short code on MTN/Airtel Uganda
+- Web dashboard for registry officers
+- NIRA National ID integration for KYC
+
+### 🔮 Phase 3 — National Scale
+
+- GPS map layer — view parcel boundaries on satellite map
+- Inheritance / next-of-kin designation on-chain
+- Ministry of Lands database migration
+- SMS notifications on title activity
+
+### 🌍 Phase 4 — Regional
+
+- East Africa multi-country deployment
+- Open-source reference implementation for African governments
+- Pan-African land registry interoperability standard
+
+---
+
+## 👤 Author
+
+**Conrad Mbaziira**
+Ugandan software developer building blockchain solutions for real African problems.
+
+> _"The most powerful technology is the kind that works for everyone — not just those with smartphones and stable internet."_
+
+---
+
+## 📄 License
+
+MIT — open source, free to use, adapt, and deploy.
+
+> Built with ❤️ for Uganda. Powered by Polygon + Supabase.
