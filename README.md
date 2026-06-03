@@ -117,3 +117,13 @@ Verify Land Title
 Check My Lands
 About System
 Exit
+
+### Verify a land parcel (token ID 0)
+
+```bash
+curl -X POST 'https://uggnvrxlcakygzqjdrrx.supabase.co/functions/v1/rapid-service' \
+  -H 'Content-Type: application/x-www-form-urlencoded' \
+  --data 'sessionId=test&phoneNumber=%2B256700000000&serviceCode=%2A123%23&text=1*0'
+```
+
+**Response:**
