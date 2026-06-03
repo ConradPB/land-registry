@@ -19,3 +19,18 @@ TitleChain tokenizes land title deeds as NFTs on the Polygon blockchain, making 
 ---
 
 ## 📂 Repository Structure
+
+├── contracts/
+│ └── LandRegistry.sol # Solidity ERC-721 smart contract
+├── scripts/
+│ └── mint.js # Mint land parcels on-chain
+├── ignition/
+│ └── modules/
+│ └── LandRegistry.js # Hardhat Ignition deploy module
+├── supabase/
+│ └── functions/
+│ └── ussd-handler/
+│ └── index.ts # Supabase Edge Function — USSD gateway
+├── hardhat.config.js # Hardhat config (reads from .env)
+├── .env.example # Environment variable template
+└── README.md
