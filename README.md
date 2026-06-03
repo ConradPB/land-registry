@@ -34,3 +34,79 @@ TitleChain tokenizes land title deeds as NFTs on the Polygon blockchain, making 
 ├── hardhat.config.js # Hardhat config (reads from .env)
 ├── .env.example # Environment variable template
 └── README.md
+
+---
+
+## 🛠️ Technology Stack
+
+| Layer              | Technology                                                          |
+| ------------------ | ------------------------------------------------------------------- |
+| Smart Contract     | Solidity ^0.8.20, OpenZeppelin v4.9.6 (ERC-721 Enumerable, Ownable) |
+| Contract Framework | Hardhat + Hardhat Ignition                                          |
+| Blockchain         | Polygon Amoy Testnet (Mainnet-ready)                                |
+| Blockchain Library | Ethers.js v6                                                        |
+| Backend            | Supabase Edge Functions (Deno / TypeScript)                         |
+| RPC Node           | Alchemy                                                             |
+| USSD Gateway       | Africa's Talking (integration-ready)                                |
+
+---
+
+## ⚡ Quick Start
+
+### 1. Clone and install
+
+```bash
+git clone https://github.com/YOUR_USERNAME/land-registry.git
+cd land-registry
+npm install
+```
+
+### 2. Set up environment variables
+
+```bash
+cp .env.example .env
+```
+
+Edit `.env` and fill in your values:
+
+```env
+PRIVATE_KEY=your_wallet_private_key
+ALCHEMY_URL=https://polygon-amoy.g.alchemy.com/v2/YOUR_KEY
+CONTRACT_ADDRESS=0xc6A41798d3BC687c53053936cFD1975eb6206Cfb
+```
+
+### 3. Compile the contract
+
+```bash
+npx hardhat compile
+```
+
+### 4. Deploy to Amoy testnet
+
+```bash
+npx hardhat ignition deploy ./ignition/modules/LandRegistry.js --network amoy
+```
+
+### 5. Mint a land parcel
+
+Edit `scripts/mint.js` with your contract address, then:
+
+```bash
+npx hardhat run --network amoy scripts/mint.js
+```
+
+---
+
+## 📱 Testing the Live USSD Endpoint
+
+The USSD API is live and accepts POST requests. Simulate a full USSD session from your terminal:
+
+### Main menu
+
+```bash
+curl -X POST 'https://uggnvrxlcakygzqjdrrx.supabase.co/functions/v1/rapid-service' \
+  -H 'Content-Type: application/x-www-form-urlencoded' \
+  --data 'sessionId=test&phoneNumber=%2B256700000000&serviceCode=%2A123%23&text='
+```
+
+**Response:**
