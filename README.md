@@ -110,3 +110,10 @@ curl -X POST 'https://uggnvrxlcakygzqjdrrx.supabase.co/functions/v1/rapid-servic
 ```
 
 **Response:**
+
+CON Welcome to Digital Land Registry
+
+Verify Land Title
+Check My Lands
+About System
+Exit
