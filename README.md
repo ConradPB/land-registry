@@ -127,3 +127,10 @@ curl -X POST 'https://uggnvrxlcakygzqjdrrx.supabase.co/functions/v1/rapid-servic
 ```
 
 **Response:**
+
+END Land Parcel #0:
+Title: LR-KLA-001
+Loc: Kampala, Kololo (GPS: 0.323, 32.585)
+Size: 450 sqm
+Owner: 0xc030...c12B
+Status: CLEAN & VERIFIED
