@@ -134,3 +134,25 @@ Loc: Kampala, Kololo (GPS: 0.323, 32.585)
 Size: 450 sqm
 Owner: 0xc030...c12B
 Status: CLEAN & VERIFIED
+
+### Demo mode (no contract needed)
+
+The API gracefully falls back to demo data if the blockchain is unreachable.
+Try token IDs `0`, `1`, or `2` — ID `1` returns a disputed/frozen parcel.
+
+---
+
+## 🔗 Smart Contract Functions
+
+| Function                                                  | Access     | Description                   |
+| --------------------------------------------------------- | ---------- | ----------------------------- |
+| `mintTitle(to, titleNumber, location, size, metadataURI)` | Owner only | Mint a new land title NFT     |
+| `getLandParcel(tokenId)`                                  | Public     | Returns all 8 parcel fields   |
+| `exists(tokenId)`                                         | Public     | Check if a token exists       |
+| `setDisputeStatus(tokenId, disputed)`                     | Owner only | Freeze or unfreeze a title    |
+| `balanceOf(owner)`                                        | Public     | Count titles owned by address |
+| `tokenOfOwnerByIndex(owner, index)`                       | Public     | Enumerate titles by owner     |
+
+### Verify on Polygonscan
+
+Every transaction is publicly verifiable:
