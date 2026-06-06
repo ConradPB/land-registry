@@ -138,7 +138,7 @@ Status: CLEAN & VERIFIED
 
 ### Demo mode (no contract needed)
 
-# try these token IDs
+Try these token IDs
 
 | Token ID | Title      | Location        | Status             |
 | -------- | ---------- | --------------- | ------------------ |
