@@ -10,11 +10,12 @@ TitleChain tokenizes land title deeds as NFTs on the Polygon blockchain, making 
 
 ## 🌍 Live Deployment
 
-| Component         | Status                         | Link                                                                                             |
-| ----------------- | ------------------------------ | ------------------------------------------------------------------------------------------------ |
-| Smart Contract    | ✅ LIVE — Polygon Amoy Testnet | [0xc6A4...6Cfb](https://amoy.polygonscan.com/address/0xc6A41798d3BC687c53053936cFD1975eb6206Cfb) |
-| USSD API Endpoint | ✅ LIVE — Supabase Edge        | `https://uggnvrxlcakygzqjdrrx.supabase.co/functions/v1/rapid-service`                            |
-| Land Parcel #0    | ✅ MINTED ON-CHAIN             | LR-KLA-001 · Kampala, Kololo                                                                     |
+| Component         | Status                             | Link                                                                                             |
+| ----------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------ |
+| Smart Contract    | ✅ LIVE — Polygon Amoy Testnet     | [0xc6A4...6Cfb](https://amoy.polygonscan.com/address/0xc6A41798d3BC687c53053936cFD1975eb6206Cfb) |
+| USSD API Endpoint | ✅ LIVE — Supabase Edge            | `https://uggnvrxlcakygzqjdrrx.supabase.co/functions/v1/rapid-service`                            |
+| USSD Short Code   | ✅ LIVE — Africa's Talking Sandbox | Dial `*384*4700#` to verify land titles                                                          |
+| Land Parcels      | ✅ 5 PARCELS MINTED ON-CHAIN       | Kampala · Wakiso · Jinja · Mbarara · Gulu                                                        |
 
 ---
 
