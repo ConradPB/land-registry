@@ -138,8 +138,15 @@ Status: CLEAN & VERIFIED
 
 ### Demo mode (no contract needed)
 
-The API gracefully falls back to demo data if the blockchain is unreachable.
-Try token IDs `0`, `1`, or `2` — ID `1` returns a disputed/frozen parcel.
+# try these token IDs
+
+| Token ID | Title      | Location        | Status             |
+| -------- | ---------- | --------------- | ------------------ |
+| `0`      | LR-KLA-001 | Kampala, Kololo | ✅ Clean           |
+| `1`      | LR-WKS-002 | Wakiso, Nansana | ✅ Clean           |
+| `2`      | LR-JJA-003 | Jinja, Bugembe  | ✅ Clean           |
+| `3`      | LR-MBR-004 | Mbarara, Kakoba | ⚠️ Disputed/Frozen |
+| `4`      | LR-GLU-005 | Gulu, Pece      | ✅ Clean           |
 
 ---
 
